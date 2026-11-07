@@ -29,7 +29,7 @@ import com.example.insertcodeesalasdg.ui.components.MenuBotones
 fun HomeScreenCompacta(onIrA: (String) -> Unit = {}) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "InserCode · Ventas y Distribución") })
+            TopAppBar(title = { Text(text = "InserCode · Modo guardian") })
         }
     ) { innerPadding ->
         // Columna principal con espaciado uniforme
@@ -47,7 +47,7 @@ fun HomeScreenCompacta(onIrA: (String) -> Unit = {}) {
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = "Gestión móvil comercial y logística",
+                text = "Monitoreo móvil de eventos y alertas",
                 style = MaterialTheme.typography.bodyMedium
             )
             Image(

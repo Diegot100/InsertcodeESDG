@@ -28,7 +28,7 @@ import com.example.insertcodeesalasdg.ui.components.MenuBotones
 fun HomeScreenMediana(onIrA: (String) -> Unit = {}) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "InserCode · Ventas y Distribución") })
+            TopAppBar(title = { Text(text = "InserCode · Modo guardian") })
         }
     ) { innerPadding ->
         Row(
@@ -52,7 +52,7 @@ fun HomeScreenMediana(onIrA: (String) -> Unit = {}) {
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Text(
-                    text = "Gestión móvil comercial y logística",
+                    text = "Monitoreo móvil de eventos y alertas",
                     style = MaterialTheme.typography.bodyLarge
                 )
                 MenuBotones(onIrA = onIrA)
