@@ -24,6 +24,11 @@ import com.example.insertcodeesalasdg.R
 import com.example.insertcodeesalasdg.model.LoginUiState
 import com.example.insertcodeesalasdg.model.Rol
 import com.example.insertcodeesalasdg.viewmodel.LoginViewModel
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.insertcodeesalasdg.model.LoginErrores
+import com.example.insertcodeesalasdg.ui.theme.InserCodeTheme
+import com.example.insertcodeesalasdg.ui.utils.obtenerWindowSizeClass
 
 @Composable
 fun LoginScreen(
@@ -32,12 +37,14 @@ fun LoginScreen(
 ) {
     val estado by loginViewModel.uiState.collectAsState()
     val sinConexion by loginViewModel.sinConexion.collectAsState()
+    val anchoPantalla = obtenerWindowSizeClass().widthSizeClass
 
     LaunchedEffect(estado.rol) {
         if (estado.rol != null) onLoginExitoso()
     }
 
     LoginContenido(
+        anchoPantalla = anchoPantalla,
         estado = estado,
         sinConexion = sinConexion,
         onEmailChange = loginViewModel::onEmailChange,
@@ -49,6 +56,7 @@ fun LoginScreen(
 
 @Composable
 fun LoginContenido(
+    anchoPantalla: WindowWidthSizeClass,
     estado: LoginUiState,
     sinConexion: Boolean,
     onEmailChange: (String) -> Unit,
@@ -69,7 +77,10 @@ fun LoginContenido(
     }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
-        LoginCompacto(innerPadding, formulario)
+        when (anchoPantalla) {
+            WindowWidthSizeClass.Compact -> LoginCompacto(innerPadding, formulario)
+            else -> LoginAmplio(innerPadding, formulario)
+        }
     }
 }
 
@@ -248,5 +259,110 @@ fun FormularioLogin(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+@Composable
+private fun LoginAmplio(
+    innerPadding: PaddingValues,
+    formulario: @Composable (Modifier) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .padding(innerPadding)
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(48.dp),
+        horizontalArrangement = Arrangement.spacedBy(48.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            EncabezadoLogin(tamanoLogo = 96.dp)
+            Text(
+                text = "Monitoreo móvil de eventos y alertas",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        formulario(
+            Modifier
+                .weight(1f)
+                .widthIn(max = 480.dp)
+        )
+    }
+}
+
+@Preview(name = "Compact", widthDp = 360, heightDp = 800, showBackground = true)
+@Composable
+fun PreviewLoginCompacto() {
+    InserCodeTheme {
+        LoginContenido(
+            anchoPantalla = WindowWidthSizeClass.Compact,
+            estado = LoginUiState(email = "operador@guardian.test", password = "123456"),
+            sinConexion = false,
+            onEmailChange = {},
+            onPasswordChange = {},
+            onSinConexionChange = {},
+            onIngresar = {}
+        )
+    }
+}
+
+@Preview(name = "Medium", widthDp = 700, heightDp = 900, showBackground = true)
+@Composable
+fun PreviewLoginMediano() {
+    InserCodeTheme {
+        LoginContenido(
+            anchoPantalla = WindowWidthSizeClass.Medium,
+            estado = LoginUiState(email = "operador@guardian.test", password = "123456"),
+            sinConexion = false,
+            onEmailChange = {},
+            onPasswordChange = {},
+            onSinConexionChange = {},
+            onIngresar = {}
+        )
+    }
+}
+
+@Preview(name = "Expanded", widthDp = 1100, heightDp = 700, showBackground = true)
+@Composable
+fun PreviewLoginExpandido() {
+    InserCodeTheme {
+        LoginContenido(
+            anchoPantalla = WindowWidthSizeClass.Expanded,
+            estado = LoginUiState(email = "operador@guardian.test", password = "123456"),
+            sinConexion = false,
+            onEmailChange = {},
+            onPasswordChange = {},
+            onSinConexionChange = {},
+            onIngresar = {}
+        )
+    }
+}
+
+@Preview(name = "Con errores", widthDp = 360, heightDp = 800, showBackground = true)
+@Composable
+fun PreviewLoginConErrores() {
+    InserCodeTheme {
+        LoginContenido(
+            anchoPantalla = WindowWidthSizeClass.Compact,
+            estado = LoginUiState(
+                email = "operador@",
+                password = "123",
+                errores = LoginErrores(
+                    email = "Ingresa un correo válido",
+                    password = "Debe tener al menos 6 caracteres",
+                    general = "Sin conexión. Revisa tu red e intenta de nuevo"
+                )
+            ),
+            sinConexion = true,
+            onEmailChange = {},
+            onPasswordChange = {},
+            onSinConexionChange = {},
+            onIngresar = {}
+        )
     }
 }
