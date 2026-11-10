@@ -66,12 +66,12 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(AppRoutes.Home.route) {
                         HomeScreen(
-                            navController = navController,
-                            totalEventos = estadoViewModel.totalEventos,
-                            pendientes = estadoViewModel.pendientes,
-                            atendidos = estadoViewModel.atendidos,
-                            onVerEventosClick = {
-                                navigationViewModel.navigateTo(AppRoutes.Estado.route)
+                            loginViewModel = loginViewModel,
+                            estadoViewModel = estadoViewModel,
+                            onNavegar = { ruta -> navigationViewModel.navigateTo(ruta) },
+                            onCerrarSesion = {
+                                loginViewModel.cerrarSesion()
+                                navigationViewModel.navigateTo(AppRoutes.Login.route, limpiarPila = true)
                             }
                         )
                     }
