@@ -21,6 +21,7 @@ import com.example.insertcodeesalasdg.viewmodel.EstadoViewModel
 import com.example.insertcodeesalasdg.viewmodel.NavigationViewModel
 import com.example.insertcodeesalasdg.viewmodel.PerfilViewModel
 import com.example.insertcodeesalasdg.viewmodel.UsuarioViewModel
+import com.example.insertcodeesalasdg.viewmodel.LoginViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -28,6 +29,9 @@ class MainActivity : ComponentActivity() {
     private val usuarioViewModel: UsuarioViewModel by viewModels()
     private val perfilViewModel: PerfilViewModel by viewModels()
     private val navigationViewModel: NavigationViewModel by viewModels()
+
+    private val loginViewModel: LoginViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,12 +58,9 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable(AppRoutes.Login.route) {
                         LoginScreen(
-                            usuarioViewModel = usuarioViewModel,
+                            loginViewModel = loginViewModel,
                             onLoginExitoso = {
                                 navigationViewModel.navigateTo(AppRoutes.Home.route, limpiarPila = true)
-                            },
-                            onIrARegistro = {
-                                navigationViewModel.navigateTo(AppRoutes.Registro.route)
                             }
                         )
                     }
