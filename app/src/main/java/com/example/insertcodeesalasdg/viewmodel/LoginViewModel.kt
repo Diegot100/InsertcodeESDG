@@ -1,27 +1,49 @@
 package com.example.insertcodeesalasdg.viewmodel
 
+import android.app.Application
 import android.util.Patterns
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.insertcodeesalasdg.model.LoginUiState
 import com.example.insertcodeesalasdg.model.ResultadoLogin
 import com.example.insertcodeesalasdg.repository.AuthRepository
+import com.example.insertcodeesalasdg.repository.SesionPreferences
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(
-    private val repository: AuthRepository = AuthRepository()
-) : ViewModel() {
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = AuthRepository()
+    private val sesionPreferences = SesionPreferences(application)
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
     private val _sinConexion = MutableStateFlow(false)
     val sinConexion: StateFlow<Boolean> = _sinConexion.asStateFlow()
+
+    init {
+        cargarPreferencias()
+    }
+
+    private fun cargarPreferencias() {
+        viewModelScope.launch {
+            try {
+                val guardadas = sesionPreferences.preferencias.first()
+                if (guardadas.recordarme) {
+                    _uiState.update { it.copy(email = guardadas.email, recordarme = true) }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+            }
+        }
+    }
 
     fun onEmailChange(valor: String) {
         _uiState.update {
@@ -33,6 +55,10 @@ class LoginViewModel(
         _uiState.update {
             it.copy(password = valor, errores = it.errores.copy(password = null, general = null))
         }
+    }
+
+    fun onRecordarmeChange(valor: Boolean) {
+        _uiState.update { it.copy(recordarme = valor) }
     }
 
     fun onSinConexionChange(activo: Boolean) {
@@ -72,6 +98,14 @@ class LoginViewModel(
             } catch (e: Exception) {
                 ResultadoLogin.ErrorConexion
             }
+            if (resultado is ResultadoLogin.Exito) {
+                try {
+                    sesionPreferences.guardar(estado.recordarme, estado.email.trim())
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                }
+            }
             _uiState.update { actual ->
                 when (resultado) {
                     is ResultadoLogin.Exito -> actual.copy(isLoading = false, rol = resultado.rol)
@@ -90,5 +124,6 @@ class LoginViewModel(
 
     fun cerrarSesion() {
         _uiState.value = LoginUiState()
+        cargarPreferencias()
     }
 }

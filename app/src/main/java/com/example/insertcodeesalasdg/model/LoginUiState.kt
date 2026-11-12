@@ -6,7 +6,8 @@ data class LoginUiState(
     val password: String = "",
     val isLoading: Boolean = false,
     val errores: LoginErrores = LoginErrores(),
-    val rol: Rol? = null
+    val rol: Rol? = null,
+    val recordarme: Boolean = false
 ) {
     // El botón se habilita solo con ambos campos llenos y sin una carga en curso
     val isLoginEnabled: Boolean

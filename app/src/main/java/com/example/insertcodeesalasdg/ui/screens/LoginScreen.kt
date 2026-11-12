@@ -50,7 +50,8 @@ fun LoginScreen(
         onEmailChange = loginViewModel::onEmailChange,
         onPasswordChange = loginViewModel::onPasswordChange,
         onSinConexionChange = loginViewModel::onSinConexionChange,
-        onIngresar = loginViewModel::iniciarSesion
+        onIngresar = loginViewModel::iniciarSesion,
+        onRecordarmeChange = loginViewModel::onRecordarmeChange
     )
 }
 
@@ -62,7 +63,8 @@ fun LoginContenido(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onSinConexionChange: (Boolean) -> Unit,
-    onIngresar: () -> Unit
+    onIngresar: () -> Unit,
+    onRecordarmeChange: (Boolean) -> Unit = {}
 ) {
     val formulario: @Composable (Modifier) -> Unit = { modificador ->
         FormularioLogin(
@@ -72,6 +74,7 @@ fun LoginContenido(
             onPasswordChange = onPasswordChange,
             onSinConexionChange = onSinConexionChange,
             onIngresar = onIngresar,
+            onRecordarmeChange = onRecordarmeChange,
             modifier = modificador
         )
     }
@@ -134,6 +137,7 @@ fun FormularioLogin(
     onPasswordChange: (String) -> Unit,
     onSinConexionChange: (Boolean) -> Unit,
     onIngresar: () -> Unit,
+    onRecordarmeChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var verPassword by rememberSaveable { mutableStateOf(false) }
@@ -207,6 +211,18 @@ fun FormularioLogin(
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth()
             )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = estado.recordarme,
+                    onCheckedChange = onRecordarmeChange,
+                    enabled = !estado.isLoading
+                )
+                Text(
+                    text = "Recordarme",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
             val errorGeneral = estado.errores.general
             if (errorGeneral != null) {
