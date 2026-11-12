@@ -30,15 +30,18 @@ import com.example.insertcodeesalasdg.model.LoginErrores
 import com.example.insertcodeesalasdg.ui.theme.InserCodeTheme
 import com.example.insertcodeesalasdg.ui.utils.obtenerWindowSizeClass
 
+// Pantalla con estado: se conecta al ViewModel y delega el dibujo a LoginContenido
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
     onLoginExitoso: () -> Unit
 ) {
+    // collectAsState convierte el StateFlow en estado de Compose: la pantalla se redibuja sola al cambiar
     val estado by loginViewModel.uiState.collectAsState()
     val sinConexion by loginViewModel.sinConexion.collectAsState()
     val anchoPantalla = obtenerWindowSizeClass().widthSizeClass
 
+    // Cuando el login entrega un rol, navega al Home
     LaunchedEffect(estado.rol) {
         if (estado.rol != null) onLoginExitoso()
     }
@@ -55,6 +58,7 @@ fun LoginScreen(
     )
 }
 
+// Pantalla sin estado propio (recibe todo por parámetros): por eso se puede probar con Previews
 @Composable
 fun LoginContenido(
     anchoPantalla: WindowWidthSizeClass,
@@ -80,6 +84,7 @@ fun LoginContenido(
     }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
+        // Compact (celular) usa una Column; Medium y Expanded usan una Row con el formulario al lado
         when (anchoPantalla) {
             WindowWidthSizeClass.Compact -> LoginCompacto(innerPadding, formulario)
             else -> LoginAmplio(innerPadding, formulario)
@@ -87,6 +92,7 @@ fun LoginContenido(
     }
 }
 
+// Layout para celular: logo arriba y formulario debajo, con scroll por si el teclado tapa campos
 @Composable
 private fun LoginCompacto(
     innerPadding: PaddingValues,
@@ -129,6 +135,7 @@ fun EncabezadoLogin(
     }
 }
 
+// Tarjeta con los campos, el botón y las ayudas; se reutiliza en ambos layouts
 @Composable
 fun FormularioLogin(
     estado: LoginUiState,
@@ -140,6 +147,7 @@ fun FormularioLogin(
     onRecordarmeChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    // rememberSaveable conserva si la contraseña está visible aunque se gire la pantalla
     var verPassword by rememberSaveable { mutableStateOf(false) }
 
     Card(
@@ -171,6 +179,7 @@ fun FormularioLogin(
                 label = { Text("Correo") },
                 singleLine = true,
                 enabled = !estado.isLoading,
+                // isError pinta el borde rojo y supportingText muestra el mensaje bajo el campo
                 isError = estado.errores.email != null,
                 supportingText = {
                     val mensaje = estado.errores.email
@@ -195,11 +204,13 @@ fun FormularioLogin(
                     val mensaje = estado.errores.password
                     if (mensaje != null) Text(mensaje)
                 },
+                // Oculta la contraseña con puntos, salvo que el usuario pulse Ver
                 visualTransformation = if (verPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
                 ),
+                // El botón listo del teclado intenta iniciar sesión, igual que el botón Ingresar
                 keyboardActions = KeyboardActions(
                     onDone = { if (estado.isLoginEnabled) onIngresar() }
                 ),
@@ -233,6 +244,7 @@ fun FormularioLogin(
                 )
             }
 
+            // El botón solo se habilita con isLoginEnabled; durante la carga muestra un indicador
             Button(
                 onClick = onIngresar,
                 enabled = estado.isLoginEnabled,
@@ -262,6 +274,7 @@ fun FormularioLogin(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                // Interruptor de demostración: simula una caída de conexión para probar el manejo de errores
                 Switch(
                     checked = sinConexion,
                     onCheckedChange = onSinConexionChange,
@@ -278,6 +291,7 @@ fun FormularioLogin(
     }
 }
 
+// Layout para tablet o pantalla girada: logo y descripción a la izquierda, formulario a la derecha
 @Composable
 private fun LoginAmplio(
     innerPadding: PaddingValues,
@@ -311,6 +325,7 @@ private fun LoginAmplio(
     }
 }
 
+// Previews: permiten ver el Login en cada tamaño de pantalla sin ejecutar la app
 @Preview(name = "Compact", widthDp = 360, heightDp = 800, showBackground = true)
 @Composable
 fun PreviewLoginCompacto() {

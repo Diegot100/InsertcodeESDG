@@ -25,6 +25,7 @@ import com.example.insertcodeesalasdg.viewmodel.LoginViewModel
 
 class MainActivity : ComponentActivity() {
 
+    // Los ViewModels viven en la Activity para compartirse entre pantallas (el Home lee el rol del mismo LoginViewModel)
     private val estadoViewModel: EstadoViewModel by viewModels()
     private val usuarioViewModel: UsuarioViewModel by viewModels()
     private val perfilViewModel: PerfilViewModel by viewModels()
@@ -39,11 +40,13 @@ class MainActivity : ComponentActivity() {
             InserCodeTheme {
                 val navController = rememberNavController()
 
+                // Escucha los eventos del NavigationViewModel y los traduce a acciones del NavController
                 LaunchedEffect(Unit) {
                     navigationViewModel.events.collect { evento ->
                         when (evento) {
                             is NavigationEvent.NavigateTo -> navController.navigate(evento.route) {
                                 if (evento.limpiarPila) {
+                                    // Limpia toda la pila para que el botón atrás no vuelva a pantallas anteriores
                                     popUpTo(navController.graph.id) { inclusive = true }
                                 }
                             }
@@ -52,6 +55,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                // Grafo de navegación: cada ruta de AppRoutes muestra una pantalla
                 NavHost(
                     navController = navController,
                     startDestination = AppRoutes.Login.route
@@ -69,6 +73,7 @@ class MainActivity : ComponentActivity() {
                             loginViewModel = loginViewModel,
                             estadoViewModel = estadoViewModel,
                             onNavegar = { ruta -> navigationViewModel.navigateTo(ruta) },
+                            // Reinicia la sesión y vuelve al Login limpiando la pila
                             onCerrarSesion = {
                                 loginViewModel.cerrarSesion()
                                 navigationViewModel.navigateTo(AppRoutes.Login.route, limpiarPila = true)

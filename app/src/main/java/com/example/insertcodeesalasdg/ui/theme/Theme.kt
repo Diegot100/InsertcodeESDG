@@ -6,6 +6,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+// Paleta del prototipo Claro corporativo: verde azulado como color primario
 private val EsquemaClaro = lightColorScheme(
     primary = Color(0xFF0F766E),
     onPrimary = Color.White,
@@ -25,6 +26,7 @@ private val EsquemaOscuro = darkColorScheme(
     tertiary = Color(0xFFFFB74D)
 )
 
+// Tema de la app; por defecto siempre claro, que es el diseño elegido
 @Composable
 fun InserCodeTheme(
     darkTheme: Boolean = false,

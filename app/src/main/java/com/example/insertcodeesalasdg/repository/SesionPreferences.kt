@@ -13,8 +13,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
+// Archivo de preferencias local (DataStore); guarda solo el correo y Recordarme, nunca la contraseña
 private val Context.sesionDataStore: DataStore<Preferences> by preferencesDataStore(name = "sesion_guardian")
 
+// Lo que se recuerda entre sesiones: si marcó Recordarme y qué correo usó
 data class PreferenciasSesion(
     val recordarme: Boolean,
     val email: String
@@ -26,6 +28,7 @@ class SesionPreferences(private val context: Context) {
     private val claveEmail = stringPreferencesKey("email_recordado")
 
     val preferencias: Flow<PreferenciasSesion> = context.sesionDataStore.data
+        // Si el archivo no se puede leer se usan valores vacíos en vez de cerrar la app
         .catch { error ->
             if (error is IOException) emit(emptyPreferences()) else throw error
         }
@@ -36,6 +39,7 @@ class SesionPreferences(private val context: Context) {
             )
         }
 
+    // Con Recordarme activo guarda el correo; si no, lo borra
     suspend fun guardar(recordarme: Boolean, email: String) {
         context.sesionDataStore.edit { datos ->
             datos[claveRecordarme] = recordarme

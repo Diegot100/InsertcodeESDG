@@ -18,6 +18,7 @@ import com.example.insertcodeesalasdg.ui.components.MenuBotones
 import com.example.insertcodeesalasdg.viewmodel.EstadoViewModel
 import com.example.insertcodeesalasdg.viewmodel.LoginViewModel
 
+// Home que cambia según el rol que inició sesión
 @Composable
 fun HomeScreen(
     loginViewModel: LoginViewModel,
@@ -25,12 +26,15 @@ fun HomeScreen(
     onNavegar: (String) -> Unit,
     onCerrarSesion: () -> Unit
 ) {
+    // Observa el mismo LoginViewModel del Login para saber qué rol inició sesión
     val loginState by loginViewModel.uiState.collectAsState()
+    // Los contadores se recalculan solos cuando cambia la lista de eventos
     val eventos by estadoViewModel.eventos.collectAsState()
 
     val total = eventos.size
     val pendientes = eventos.count { it.estadoAtencion == EstadoAtencion.PENDIENTE }
     val atendidos = eventos.count { it.estadoAtencion == EstadoAtencion.ATENDIDO }
+    // Porcentaje de eventos atendidos; evita dividir por cero si no hay eventos
     val avance = if (total == 0) 0 else atendidos * 100 / total
 
     Scaffold(
@@ -57,6 +61,7 @@ fun HomeScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
+            // Cada rol ve un panel distinto, con sus indicadores y su acción principal
             when (loginState.rol) {
                 Rol.ADMIN -> PanelRol(
                     titulo = "Panel de Administrador",
@@ -113,6 +118,7 @@ fun HomeScreen(
     }
 }
 
+// Panel reutilizable: cada rol lo llena con sus textos, indicadores y botón
 @Composable
 private fun PanelRol(
     titulo: String,

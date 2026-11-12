@@ -7,6 +7,7 @@ data class LoginUiState(
     val isLoading: Boolean = false,
     val errores: LoginErrores = LoginErrores(),
     val rol: Rol? = null,
+    // Casilla Recordarme: si está activa se guarda el correo con DataStore
     val recordarme: Boolean = false
 ) {
     // El botón se habilita solo con ambos campos llenos y sin una carga en curso
