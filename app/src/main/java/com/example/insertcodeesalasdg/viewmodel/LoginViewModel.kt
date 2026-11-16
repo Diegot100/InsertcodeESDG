@@ -135,7 +135,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Deja el estado como nuevo y vuelve a cargar el correo recordado
+
     fun cerrarSesion() {
+        repository.cerrarSesion()
         _uiState.value = LoginUiState()
         cargarPreferencias()
     }

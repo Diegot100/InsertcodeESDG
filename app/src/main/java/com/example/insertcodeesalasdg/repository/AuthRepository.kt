@@ -2,32 +2,38 @@ package com.example.insertcodeesalasdg.repository
 
 import com.example.insertcodeesalasdg.model.ResultadoLogin
 import com.example.insertcodeesalasdg.model.Rol
-import com.example.insertcodeesalasdg.model.UsuarioPrueba
-import kotlinx.coroutines.delay
+import com.example.insertcodeesalasdg.network.LoginRequest
+import com.example.insertcodeesalasdg.network.SesionSupabase
+import com.example.insertcodeesalasdg.network.SupabaseClient
+import retrofit2.HttpException
+import java.io.IOException
 
-// Fuente de datos de autenticación simulada: no usa red real ni credenciales de la organización
 class AuthRepository {
 
-    // Si es true, el login responde como si no hubiera internet (sirve para demostrar el error de conectividad)
     var simularSinConexion: Boolean = false
 
-    // Usuarios ficticios exigidos por la pauta; nunca credenciales reales
-    private val usuarios = listOf(
-        UsuarioPrueba("admin@guardian.test", "123456", Rol.ADMIN),
-        UsuarioPrueba("supervisor@guardian.test", "123456", Rol.SUPERVISOR),
-        UsuarioPrueba("operador@guardian.test", "123456", Rol.OPERADOR)
-    )
-
-    // suspend: se ejecuta en una corrutina para no bloquear la interfaz mientras se consulta el servicio
     suspend fun login(email: String, password: String): ResultadoLogin {
-        // Simula la demora de una llamada de red para poder mostrar el estado de carga
-        delay(1500)
         if (simularSinConexion) return ResultadoLogin.ErrorConexion
-        // Busca al usuario ignorando mayúsculas en el correo y exigiendo la contraseña exacta
-        val usuario = usuarios.find {
-            it.email.equals(email.trim(), ignoreCase = true) && it.password == password
+        SesionSupabase.limpiar()
+        return try {
+            val sesion = SupabaseClient.api.login("password", LoginRequest(email.trim(), password))
+            val token = sesion.accessToken
+            val uid = sesion.user?.id
+            if (token == null || uid == null) return ResultadoLogin.CredencialesInvalidas
+            SesionSupabase.accessToken = token
+            SesionSupabase.usuarioId = uid
+            val perfil = SupabaseClient.api.obtenerPerfil("eq.$uid").firstOrNull()
+            val rol = Rol.values().find { it.name == perfil?.rol } ?: Rol.OPERADOR
+            ResultadoLogin.Exito(rol)
+        } catch (e: HttpException) {
+            if (e.code() == 400 || e.code() == 401 || e.code() == 422) ResultadoLogin.CredencialesInvalidas
+            else ResultadoLogin.ErrorConexion
+        } catch (e: IOException) {
+            ResultadoLogin.ErrorConexion
         }
-        return if (usuario != null) ResultadoLogin.Exito(usuario.rol)
-        else ResultadoLogin.CredencialesInvalidas
+    }
+
+    fun cerrarSesion() {
+        SesionSupabase.limpiar()
     }
 }
