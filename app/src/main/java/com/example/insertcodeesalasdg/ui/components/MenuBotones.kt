@@ -18,6 +18,15 @@ fun MenuBotones(
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Button(
+            onClick = { onIrA(AppRoutes.Camaras.route) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+        ) {
+            Text("Cámaras")
+        }
+
+        Button(
             onClick = { onIrA(AppRoutes.Resumen.route) },
             modifier = Modifier
                 .fillMaxWidth()

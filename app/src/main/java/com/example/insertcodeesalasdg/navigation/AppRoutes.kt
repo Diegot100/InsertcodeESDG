@@ -7,4 +7,6 @@ sealed class AppRoutes(val route: String) {
     object Resumen : AppRoutes("resumen")
     object Estado : AppRoutes("estado")
     object Perfil : AppRoutes("perfil")
+    object Camaras : AppRoutes("camaras")
+    object CamaraDetalle : AppRoutes("camara_detalle")
 }

@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.insertcodeesalasdg.navigation.AppRoutes
 import com.example.insertcodeesalasdg.navigation.NavigationEvent
+import com.example.insertcodeesalasdg.ui.screens.CamaraDetalleScreen
+import com.example.insertcodeesalasdg.ui.screens.CamarasScreen
 import com.example.insertcodeesalasdg.ui.screens.EstadoScreen
 import com.example.insertcodeesalasdg.ui.screens.HomeScreen
 import com.example.insertcodeesalasdg.ui.screens.LoginScreen
@@ -17,6 +19,7 @@ import com.example.insertcodeesalasdg.ui.screens.PerfilScreen
 import com.example.insertcodeesalasdg.ui.screens.RegistroScreen
 import com.example.insertcodeesalasdg.ui.screens.ResumenScreen
 import com.example.insertcodeesalasdg.ui.theme.InserCodeTheme
+import com.example.insertcodeesalasdg.viewmodel.CamaraViewModel
 import com.example.insertcodeesalasdg.viewmodel.EstadoViewModel
 import com.example.insertcodeesalasdg.viewmodel.NavigationViewModel
 import com.example.insertcodeesalasdg.viewmodel.PerfilViewModel
@@ -32,6 +35,7 @@ class MainActivity : ComponentActivity() {
     private val navigationViewModel: NavigationViewModel by viewModels()
 
     private val loginViewModel: LoginViewModel by viewModels()
+    private val camaraViewModel: CamaraViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,6 +101,22 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(AppRoutes.Perfil.route) {
                         PerfilScreen(viewModel = perfilViewModel)
+                    }
+                    composable(AppRoutes.Camaras.route) {
+                        CamarasScreen(
+                            viewModel = camaraViewModel,
+                            onAbrirCamara = { id ->
+                                camaraViewModel.seleccionar(id)
+                                navigationViewModel.navigateTo(AppRoutes.CamaraDetalle.route)
+                            },
+                            onVolver = { navigationViewModel.navigateBack() }
+                        )
+                    }
+                    composable(AppRoutes.CamaraDetalle.route) {
+                        CamaraDetalleScreen(
+                            viewModel = camaraViewModel,
+                            onVolver = { navigationViewModel.navigateBack() }
+                        )
                     }
                 }
             }
