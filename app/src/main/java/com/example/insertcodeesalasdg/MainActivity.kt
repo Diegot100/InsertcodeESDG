@@ -79,6 +79,7 @@ class MainActivity : ComponentActivity() {
                             onNavegar = { ruta -> navigationViewModel.navigateTo(ruta) },
                             // Reinicia la sesión y vuelve al Login limpiando la pila
                             onCerrarSesion = {
+                                camaraViewModel.limpiar()
                                 loginViewModel.cerrarSesion()
                                 navigationViewModel.navigateTo(AppRoutes.Login.route, limpiarPila = true)
                             }

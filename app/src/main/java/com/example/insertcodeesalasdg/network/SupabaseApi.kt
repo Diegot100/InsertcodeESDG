@@ -4,6 +4,8 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
+import retrofit2.http.Headers
+import retrofit2.http.PATCH
 
 interface SupabaseApi {
 
@@ -24,4 +26,17 @@ interface SupabaseApi {
         @Query("grant_type") grantType: String,
         @Body cuerpo: IdTokenRequest
     ): SesionResponse
+
+    @GET("rest/v1/camaras")
+    suspend fun obtenerCamaras(
+        @Query("select") seleccion: String = "*",
+        @Query("order") orden: String = "id.asc"
+    ): List<CamaraDto>
+
+    @Headers("Prefer: return=representation")
+    @PATCH("rest/v1/camaras")
+    suspend fun actualizarCamara(
+        @Query("id") filtroId: String,
+        @Body cuerpo: ActualizarCamaraRequest
+    ): List<CamaraDto>
 }

@@ -18,10 +18,6 @@ class CamaraViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CamaraUiState())
     val uiState: StateFlow<CamaraUiState> = _uiState.asStateFlow()
 
-    init {
-        cargarCamaras()
-    }
-
     fun cargarCamaras() {
         if (_uiState.value.isLoading) return
         _uiState.update { it.copy(isLoading = true, error = null) }
@@ -53,12 +49,32 @@ class CamaraViewModel : ViewModel() {
     }
 
     fun alternarGrabacion(id: Int) {
-        _uiState.update { estado ->
-            estado.copy(
-                camaras = estado.camaras.map {
-                    if (it.id == id) it.copy(grabando = !it.grabando) else it
+        val actual = _uiState.value.camaras.find { it.id == id } ?: return
+        viewModelScope.launch {
+            try {
+                val actualizada = repository.actualizarGrabacion(id, !actual.grabando)
+                if (actualizada != null) {
+                    _uiState.update { estado ->
+                        estado.copy(
+                            camaras = estado.camaras.map { if (it.id == id) actualizada else it }
+                        )
+                    }
+                } else {
+                    _uiState.update { it.copy(mensaje = "Tu rol no tiene permiso para cambiar la grabación") }
                 }
-            )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { it.copy(mensaje = "No se pudo actualizar. Revisa tu conexión") }
+            }
         }
+    }
+
+    fun limpiarMensaje() {
+        _uiState.update { it.copy(mensaje = null) }
+    }
+
+    fun limpiar() {
+        _uiState.value = CamaraUiState(simularError = _uiState.value.simularError)
     }
 }

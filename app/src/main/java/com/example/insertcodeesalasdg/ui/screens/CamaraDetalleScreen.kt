@@ -29,6 +29,14 @@ fun CamaraDetalleScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(estado.mensaje) {
+        val mensaje = estado.mensaje
+        if (mensaje != null) {
+            snackbarHostState.showSnackbar(mensaje)
+            viewModel.limpiarMensaje()
+        }
+    }
+
     var luzActiva by rememberSaveable { mutableStateOf(false) }
     var hablando by rememberSaveable { mutableStateOf(false) }
     var segundos by rememberSaveable { mutableStateOf(0) }

@@ -29,3 +29,15 @@ data class IdTokenRequest(
     @SerializedName("id_token") val idToken: String,
     val nonce: String
 )
+
+data class CamaraDto(
+    val id: Int = 0,
+    val nombre: String = "",
+    val zona: String = "",
+    val estado: String = "",
+    val grabando: Boolean = false
+)
+
+data class ActualizarCamaraRequest(
+    val grabando: Boolean
+)
