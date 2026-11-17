@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 object SupabaseClient {
 
-    val api: SupabaseApi by lazy {
+    private val retrofit: Retrofit by lazy {
         val http = OkHttpClient.Builder()
             .addInterceptor { cadena ->
                 val original = cadena.request()
@@ -29,6 +29,9 @@ object SupabaseClient {
             .client(http)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(SupabaseApi::class.java)
     }
+
+    val api: SupabaseApi by lazy { retrofit.create(SupabaseApi::class.java) }
+
+    val eventosApi: EventosApi by lazy { retrofit.create(EventosApi::class.java) }
 }

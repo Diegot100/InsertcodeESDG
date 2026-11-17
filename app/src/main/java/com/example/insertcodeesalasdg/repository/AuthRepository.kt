@@ -49,6 +49,7 @@ class AuthRepository {
         if (token == null || uid == null) return ResultadoLogin.CredencialesInvalidas
         SesionSupabase.accessToken = token
         SesionSupabase.usuarioId = uid
+        SesionSupabase.email = sesion.user?.email
         val perfil = SupabaseClient.api.obtenerPerfil("eq.$uid").firstOrNull()
         val rol = Rol.values().find { it.name == perfil?.rol } ?: Rol.OPERADOR
         return ResultadoLogin.Exito(rol, sesion.user?.email)

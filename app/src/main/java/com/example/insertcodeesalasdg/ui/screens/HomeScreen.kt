@@ -17,6 +17,7 @@ import com.example.insertcodeesalasdg.navigation.AppRoutes
 import com.example.insertcodeesalasdg.ui.components.MenuBotones
 import com.example.insertcodeesalasdg.viewmodel.EstadoViewModel
 import com.example.insertcodeesalasdg.viewmodel.LoginViewModel
+import androidx.compose.runtime.LaunchedEffect
 
 // Home que cambia según el rol que inició sesión
 @Composable
@@ -30,6 +31,9 @@ fun HomeScreen(
     val loginState by loginViewModel.uiState.collectAsState()
     // Los contadores se recalculan solos cuando cambia la lista de eventos
     val eventos by estadoViewModel.eventos.collectAsState()
+    LaunchedEffect(Unit) {
+        estadoViewModel.cargar()
+    }
 
     val total = eventos.size
     val pendientes = eventos.count { it.estadoAtencion == EstadoAtencion.PENDIENTE }
@@ -106,7 +110,10 @@ fun HomeScreen(
             }
 
             OutlinedButton(
-                onClick = onCerrarSesion,
+                onClick = {
+                    estadoViewModel.limpiar()
+                    onCerrarSesion()
+                },
                 shape = RoundedCornerShape(50),
                 modifier = Modifier
                     .fillMaxWidth()
