@@ -18,4 +18,10 @@ interface SupabaseApi {
         @Query("id") filtroId: String,
         @Query("select") seleccion: String = "id,nombre,rol"
     ): List<PerfilDto>
+
+    @POST("auth/v1/token")
+    suspend fun loginConIdToken(
+        @Query("grant_type") grantType: String,
+        @Body cuerpo: IdTokenRequest
+    ): SesionResponse
 }

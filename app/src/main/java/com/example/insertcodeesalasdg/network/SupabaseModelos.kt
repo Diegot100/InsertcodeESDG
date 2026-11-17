@@ -23,3 +23,9 @@ data class PerfilDto(
     val nombre: String? = null,
     val rol: String? = null
 )
+
+data class IdTokenRequest(
+    val provider: String,
+    @SerializedName("id_token") val idToken: String,
+    val nonce: String
+)

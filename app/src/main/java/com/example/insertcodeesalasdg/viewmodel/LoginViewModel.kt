@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.insertcodeesalasdg.model.LoginErrores
 
 // ViewModel del Login: concentra la lógica y el estado; la pantalla solo dibuja y reenvía eventos
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
@@ -133,6 +134,43 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+
+    fun iniciarSesionConGoogle(idToken: String, nonce: String) {
+        if (_uiState.value.isLoading) return
+        _uiState.update { it.copy(isLoading = true, rol = null, errores = LoginErrores()) }
+        viewModelScope.launch {
+            val resultado = try {
+                repository.loginConGoogle(idToken, nonce)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                ResultadoLogin.ErrorConexion
+            }
+            _uiState.update { actual ->
+                when (resultado) {
+                    is ResultadoLogin.Exito -> actual.copy(
+                        isLoading = false,
+                        email = resultado.email ?: actual.email,
+                        rol = resultado.rol
+                    )
+                    ResultadoLogin.CredencialesInvalidas -> actual.copy(
+                        isLoading = false,
+                        errores = actual.errores.copy(general = "No se pudo validar tu cuenta de Google en el servidor")
+                    )
+                    ResultadoLogin.ErrorConexion -> actual.copy(
+                        isLoading = false,
+                        errores = actual.errores.copy(general = "Sin conexión. Revisa tu red e intenta de nuevo")
+                    )
+                }
+            }
+        }
+    }
+
+    fun onGoogleError(mensaje: String) {
+        _uiState.update { it.copy(errores = it.errores.copy(general = mensaje)) }
+    }
+
 
     // Deja el estado como nuevo y vuelve a cargar el correo recordado
 

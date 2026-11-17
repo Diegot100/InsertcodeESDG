@@ -29,6 +29,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.insertcodeesalasdg.model.LoginErrores
 import com.example.insertcodeesalasdg.ui.theme.InserCodeTheme
 import com.example.insertcodeesalasdg.ui.utils.obtenerWindowSizeClass
+import androidx.compose.ui.platform.LocalContext
+import com.example.insertcodeesalasdg.network.GoogleAuthManager
+import com.example.insertcodeesalasdg.network.ResultadoGoogle
+import com.example.insertcodeesalasdg.ui.components.BotonGoogle
+import kotlinx.coroutines.launch
 
 // Pantalla con estado: se conecta al ViewModel y delega el dibujo a LoginContenido
 @Composable
@@ -39,6 +44,17 @@ fun LoginScreen(
     // collectAsState convierte el StateFlow en estado de Compose: la pantalla se redibuja sola al cambiar
     val estado by loginViewModel.uiState.collectAsState()
     val sinConexion by loginViewModel.sinConexion.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val onGoogleClick: () -> Unit = {
+        scope.launch {
+            when (val resultado = GoogleAuthManager.obtenerCredencial(context)) {
+                is ResultadoGoogle.Exito -> loginViewModel.iniciarSesionConGoogle(resultado.idToken, resultado.nonce)
+                ResultadoGoogle.Cancelado -> Unit
+                is ResultadoGoogle.Error -> loginViewModel.onGoogleError(resultado.mensaje)
+            }
+        }
+    }
     val anchoPantalla = obtenerWindowSizeClass().widthSizeClass
 
     // Cuando el login entrega un rol, navega al Home
@@ -54,7 +70,8 @@ fun LoginScreen(
         onPasswordChange = loginViewModel::onPasswordChange,
         onSinConexionChange = loginViewModel::onSinConexionChange,
         onIngresar = loginViewModel::iniciarSesion,
-        onRecordarmeChange = loginViewModel::onRecordarmeChange
+        onRecordarmeChange = loginViewModel::onRecordarmeChange,
+        onGoogleClick = onGoogleClick
     )
 }
 
@@ -68,7 +85,8 @@ fun LoginContenido(
     onPasswordChange: (String) -> Unit,
     onSinConexionChange: (Boolean) -> Unit,
     onIngresar: () -> Unit,
-    onRecordarmeChange: (Boolean) -> Unit = {}
+    onRecordarmeChange: (Boolean) -> Unit = {},
+    onGoogleClick: () -> Unit = {}
 ) {
     val formulario: @Composable (Modifier) -> Unit = { modificador ->
         FormularioLogin(
@@ -79,6 +97,7 @@ fun LoginContenido(
             onSinConexionChange = onSinConexionChange,
             onIngresar = onIngresar,
             onRecordarmeChange = onRecordarmeChange,
+            onGoogleClick = onGoogleClick,
             modifier = modificador
         )
     }
@@ -145,6 +164,7 @@ fun FormularioLogin(
     onSinConexionChange: (Boolean) -> Unit,
     onIngresar: () -> Unit,
     onRecordarmeChange: (Boolean) -> Unit = {},
+    onGoogleClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // rememberSaveable conserva si la contraseña está visible aunque se gire la pantalla
@@ -263,6 +283,11 @@ fun FormularioLogin(
                     Text("Ingresar")
                 }
             }
+
+            BotonGoogle(
+                habilitado = !estado.isLoading,
+                onClick = onGoogleClick
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
